@@ -1,0 +1,6 @@
+@ApiTelecom_HostAddress = http://localhost:5036
+
+GET {{ApiTelecom_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
