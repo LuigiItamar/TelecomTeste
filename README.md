@@ -22,7 +22,7 @@ Criar uma aplicação completa para gerenciar:
 
 ### Frontend
 - Angular 17+
-- Angular Material ou Bootstrap
+- Bootstrap
 - Chart.js (para dashboards)
 
 ---
