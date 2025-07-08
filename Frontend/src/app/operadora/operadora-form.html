@@ -1,0 +1,31 @@
+<h5>{{ model.id ? 'Editar Operadora' : 'Nova Operadora' }}</h5>
+
+<div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+<form #form="ngForm" (ngSubmit)="salvar(form)">
+  <div class="mb-3">
+    <label for="nome" class="form-label">Nome da Operadora</label>
+    <input id="nome" name="nome" class="form-control" required
+      [(ngModel)]="model.nome" #nome="ngModel" />
+    <div *ngIf="nome.invalid && nome.touched" class="text-danger">Campo obrigatório</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="tipoServico" class="form-label">Tipo de Serviço</label>
+    <select id="tipoServico" name="tipoServico" class="form-select" required
+      [(ngModel)]="model.tipoServico" #tipoServico="ngModel">
+      <option value="" disabled>Selecione</option>
+      <option *ngFor="let tipo of tiposServico" [value]="tipo">{{ tipo }}</option>
+    </select>
+    <div *ngIf="tipoServico.invalid && tipoServico.touched" class="text-danger">Campo obrigatório</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="contatoSuporte" class="form-label">Contato Suporte</label>
+    <input id="contatoSuporte" name="contatoSuporte" class="form-control"
+      [(ngModel)]="model.contatoSuporte" />
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || carregando">Salvar</button>
+  <button type="button" class="btn btn-secondary ms-2" (click)="cancelar()" [disabled]="carregando">Cancelar</button>
+</form>

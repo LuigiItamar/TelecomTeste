@@ -1,0 +1,36 @@
+<div *ngIf="carregando">Carregando...</div>
+<div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+<button class="btn btn-primary mb-3" (click)="abrirFormulario()">Nova Operadora</button>
+
+<table class="table table-striped" *ngIf="operadoras.length > 0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Tipo Serviço</th>
+      <th>Contato</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let op of operadoras">
+      <td>{{ op.id }}</td>
+      <td>{{ op.nome }}</td>
+      <td>{{ op.tipoServico }}</td>
+      <td>{{ op.contatoSuporte }}</td>
+      <td>
+        <button class="btn btn-sm btn-warning me-2" (click)="abrirFormulario(op)">Editar</button>
+        <button class="btn btn-sm btn-danger" (click)="excluirOperadora(op.id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Formulário aparece ao clicar -->
+<div *ngIf="mostrarFormulario">
+  <app-operadora-form
+    [operadora]="operadoraSelecionada"
+    (fechar)="fecharFormulario($event)"
+  ></app-operadora-form>
+</div>

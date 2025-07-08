@@ -19,7 +19,9 @@ public class ContratoController : ControllerBase
     public async Task<ActionResult<IEnumerable<Contrato>>> GetContratos()
     {
         // Incluir dados da operadora para facilitar a visualização
-        return await _context.Contratos.Include(c => c.Operadora).ToListAsync();
+        var result = await _context.Contratos.Include(c => c.Operadora).ToListAsync();
+
+        return Ok(result);
     }
 
     // GET: api/contrato/5
@@ -32,7 +34,7 @@ public class ContratoController : ControllerBase
         if (contrato == null)
             return NotFound();
 
-        return contrato;
+        return Ok (contrato);
     }
 
     // POST: api/contrato

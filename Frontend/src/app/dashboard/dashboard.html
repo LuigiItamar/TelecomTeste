@@ -1,0 +1,140 @@
+<div class="container my-4">
+  <h2 class="mb-4 text-center fw-bold">Dashboard <span style="color: #1E90FF;">Telecom</span></h2>
+
+  <!-- Cards indicadores -->
+  <div class="row mb-4 text-white">
+    <div class="col-md-3 mb-3">
+      <div class="card bg-success shadow" (click)="abrirModal('Paga')" style="cursor: pointer;">
+        <div class="card-body">
+          <h5 class="card-title">Faturas Pagas</h5>
+          <p class="card-text fs-4">{{ totalPagas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card bg-warning shadow" (click)="abrirModal('Pendente')" style="cursor: pointer;">
+        <div class="card-body">
+          <h5 class="card-title">Faturas Pendentes</h5>
+          <p class="card-text fs-4">{{ totalPendentes }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card bg-danger shadow" (click)="abrirModal('Atrasada')" style="cursor: pointer;">
+        <div class="card-body">
+          <h5 class="card-title">Faturas Atrasadas</h5>
+          <p class="card-text fs-4">{{ totalAtrasadas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card bg-primary shadow">
+        <div class="card-body">
+          <h5 class="card-title">Valor Total Faturado</h5>
+          <p class="card-text fs-4">R$ {{ totalValor | number:'1.2-2' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-center">Distribuição por Status (%)</h5>
+          <canvas baseChart
+                  [data]="{
+                    labels: pieChartLabels,
+                    datasets: [{
+                      data: pieChartData,
+                      backgroundColor: ['#19875480', '#ffc10780', '#dc354580'],
+                      hoverOffset: 10
+                    }]
+                  }"
+                  [type]="pieChartType"
+                  [plugins]="[dataLabelPlugin]"
+                  [options]="{
+                    plugins: {
+                      datalabels: {
+                        formatter: formatarPorcentagem.bind(this),
+                        color: '#000',
+                        font: { weight: 'bold' }
+                      },
+                      legend: {
+                        position: 'bottom'
+                      }
+                    }
+                  }"
+                  style="max-height: 300px;">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-center">Evolução Mensal</h5>
+          <canvas baseChart
+                  [data]="{ labels: barChartLabels, datasets: barChartData }"
+                  [type]="'bar'"
+                  [options]="{
+                    responsive: true,
+                    plugins: {
+                      legend: { position: 'bottom' }
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                      }
+                    }
+                  }"
+                  style="max-height: 300px;">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para detalhes das faturas -->
+  <div class="modal fade" id="faturaModal" tabindex="-1" aria-labelledby="faturaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="faturaModalLabel">{{ modalTitulo }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="faturasFiltradas.length > 0; else semFaturas">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Contrato</th>
+                  <th>Data Emissão</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let fatura of faturasFiltradas">
+                  <td>{{ fatura.contratoId }}</td>
+                  <td>{{ fatura.dataEmissao | date:'dd/MM/yyyy' }}</td>
+                  <td>R$ {{ fatura.valorCobrado | number:'1.2-2' }}</td>
+                  <td>{{ fatura.status }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #semFaturas>
+            <p class="text-muted text-center m-0">Nenhuma fatura encontrada.</p>
+          </ng-template>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

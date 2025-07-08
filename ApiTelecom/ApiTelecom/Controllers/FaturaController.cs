@@ -16,15 +16,17 @@ public class FaturaController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Fatura>>> GetFaturas()
     {
-        return await _context.Faturas
+        var result = await _context.Faturas
+            //.Include(f => f.Operadora) //fazer relacionamento.
             .Include(f => f.Contrato)
             .ToListAsync();
+        return Ok(result);
     }
 
     // POST: api/fatura
     [HttpPost]
     public async Task<ActionResult<Fatura>> PostFatura(Fatura fatura)
-    {
+    {   
         _context.Faturas.Add(fatura);
         await _context.SaveChangesAsync();
 
@@ -42,7 +44,7 @@ public class FaturaController : ControllerBase
         if (fatura == null)
             return NotFound();
 
-        return fatura;
+        return Ok (fatura);
     }
 
     // GET: api/fatura/total/2025-07

@@ -2,6 +2,17 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -12,6 +23,10 @@ builder.Services.AddDbContext<TelecomContext>(options =>
     options.UseInMemoryDatabase("Telecom"));
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
+
+DbSeeder.Seed(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
