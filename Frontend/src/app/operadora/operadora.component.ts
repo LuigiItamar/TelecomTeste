@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { OperadoraService } from '../services/operadora.service';
 import { Operadora } from '../services/operadora';
+import { OperadoraFormComponent } from './operadora-form.component';
 
 @Component({
   selector: 'app-operadora',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, OperadoraFormComponent],
   templateUrl: './operadora.html',
-  styleUrls: ['./operadora.css'],
+  // styleUrls: ['./operadora.css'], // Removido pois o arquivo não existe mais
 })
 export class OperadoraComponent implements OnInit {
   operadoras: Operadora[] = [];
@@ -17,8 +17,7 @@ export class OperadoraComponent implements OnInit {
   erro = '';
   mostrarFormulario = false;
 
-  // Para editar uma operadora selecionada
-  operadoraSelecionada?: Operadora;
+  operadoraSelecionada: Operadora | null = null;
 
   constructor(private operadoraService: OperadoraService) {}
 
@@ -29,12 +28,13 @@ export class OperadoraComponent implements OnInit {
   carregarOperadoras(): void {
     this.carregando = true;
     this.erro = '';
-    this.operadoraService.listarOperadoras().subscribe({
+    this.operadoraService.getOperadoras().subscribe({
       next: (ops: Operadora[]) => {
         this.operadoras = ops;
         this.carregando = false;
       },
       error: (err: any) => {
+        console.error(err);
         this.erro = 'Erro ao carregar operadoras.';
         this.carregando = false;
       },
@@ -42,13 +42,21 @@ export class OperadoraComponent implements OnInit {
   }
 
   abrirFormularioEditar(operadora: Operadora): void {
-    this.operadoraSelecionada = { ...operadora }; // clone para edição
+    this.operadoraSelecionada = { ...operadora };
     this.mostrarFormulario = true;
   }
 
   abrirFormularioNovo(): void {
-    this.operadoraSelecionada = undefined;
+    this.operadoraSelecionada = null;
     this.mostrarFormulario = true;
+  }
+
+  excluirOperadora(id: number): void {
+    if (!confirm('Tem certeza que deseja excluir esta operadora?')) return;
+    this.operadoraService.excluirOperadora(id).subscribe({
+      next: () => this.carregarOperadoras(),
+      error: () => (this.erro = 'Erro ao excluir operadora.'),
+    });
   }
 
   fecharFormulario(refresh: boolean): void {

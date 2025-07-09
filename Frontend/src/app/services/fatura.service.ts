@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Fatura } from './fatura';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FaturaService {
   private apiUrl = 'http://localhost:5036/api/Fatura';

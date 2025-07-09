@@ -11,7 +11,7 @@ export class OperadoraService {
 
   constructor(private http: HttpClient) {}
 
-  listarOperadoras(): Observable<Operadora[]> {
+  getOperadoras(): Observable<Operadora[]> {
     return this.http.get<Operadora[]>(this.apiUrl);
   }
 

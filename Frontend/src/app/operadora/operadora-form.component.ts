@@ -1,7 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { NgIf, NgFor, NgModel, FormsModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Operadora } from '../services/operadora';
 import { OperadoraService } from '../services/operadora.service';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-operadora-form',
@@ -10,26 +13,26 @@ import { OperadoraService } from '../services/operadora.service';
   templateUrl: './operadora-form.html',
 })
 export class OperadoraFormComponent implements OnChanges {
-  @Input() operadora?: Operadora; // Recebe operadora para editar
+  @Input() operadora: Operadora | null = null;
+  @Output() salvar = new EventEmitter<Operadora>();
   @Output() fechar = new EventEmitter<boolean>();
-  @Output() atualizou = new EventEmitter<void>();
 
-  model: Operadora = this.novoModelo();
+  model: Operadora = this.novaOperadora();
+  tiposServico = ['Móvel', 'Fixo', 'Internet'];
   carregando = false;
   erro = '';
-  tiposServico = ['Móvel', 'Fixo', 'Internet'];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['operadora'] && this.operadora) {
-      this.model = { ...this.operadora }; // copia para model
+  constructor(private operadoraService: OperadoraService) {}
+
+  ngOnChanges(): void {
+    if (this.operadora) {
+      this.model = { ...this.operadora };
     } else {
-      this.model = this.novoModelo();
+      this.model = this.novaOperadora();
     }
-    this.erro = '';
-    this.carregando = false;
   }
 
-  novoModelo(): Operadora {
+  novaOperadora(): Operadora {
     return {
       id: 0,
       nome: '',
@@ -38,36 +41,36 @@ export class OperadoraFormComponent implements OnChanges {
     };
   }
 
-  salvar(form: any) {
-    if (form.invalid) return;
-
+  onSubmit(): void {
     this.carregando = true;
-    this.erro = '';
 
-    let salvarObservable;
-
+    let salvar$;
     if (this.model.id) {
-      salvarObservable = this.operadoraService.atualizarOperadora(this.model);
+      salvar$ = this.operadoraService.atualizarOperadora(this.model).pipe(
+        // Como atualizarOperadora retorna void, map para o model atual
+        map(() => this.model)
+      );
     } else {
-      salvarObservable = this.operadoraService.criarOperadora(this.model);
+      salvar$ = this.operadoraService.criarOperadora(this.model);
     }
 
-    salvarObservable.subscribe({
-      next: () => {
-        this.carregando = false;
-        this.atualizou.emit();
+    (salvar$ as Observable<Operadora>).subscribe({
+      next: (result: Operadora) => {
+        this.salvar.emit(result);
         this.fechar.emit(true);
       },
-      error: (err) => {
+      error: (err: any) => {
+        console.error(err);
         this.erro = 'Erro ao salvar operadora.';
+        this.carregando = false;
+      },
+      complete: () => {
         this.carregando = false;
       },
     });
   }
 
-  cancelar() {
-    this.fechar.emit(false);
+  cancelar(): void {
+    this.fechar.emit(true);
   }
-
-  constructor(private operadoraService: OperadoraService) {}
 }
