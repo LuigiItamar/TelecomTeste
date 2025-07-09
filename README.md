@@ -4,7 +4,7 @@ Este é um projeto Full Stack desenvolvido com **.NET** , **Angular** e banco de
 
 🚀 Como rodar o projeto
 Pré-requisitos
-NET 7 ou superior
+.NET 7 ou superior
 Node.js 18+ e npm
 Angular CLI (instale com npm install -g @angular/cli)
 
