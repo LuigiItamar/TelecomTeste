@@ -1,9 +1,14 @@
 <div *ngIf="carregando">Carregando...</div>
 <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
 
-<button class="btn btn-primary mb-3" (click)="abrirFormularioNovo()">
-  Novo Contrato
-</button>
+<div class="d-flex mb-3">
+  <button class="btn btn-primary me-2" (click)="abrirFormularioNovo()">
+    Novo Contrato
+  </button>
+  <button class="btn btn-warning" (click)="abrirModalVencendo()">
+    Planos a vencer
+  </button>
+</div>
 
 <table class="table table-striped" *ngIf="contratos.length > 0">
   <thead>
@@ -42,4 +47,60 @@
     [contrato]="contratoSelecionado"
     (fechar)="fecharFormulario($event)"
   ></app-contrato-form>
+</div>
+
+<div *ngIf="mostrarModalVencendo" class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.3);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Planos a vencer nos próximos 5 dias</h5>
+        <button type="button" class="btn-close" (click)="fecharModalVencendo()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="contratosVencendo.length > 0; else semPlanos">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Filial</th>
+                <th>Operadora</th>
+                <th>Plano</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let contrato of contratosVencendo">
+                <td>{{ contrato.nomeFilial }}</td>
+                <td>{{ getOperadoraNome(contrato.operadoraId) }}</td>
+                <td>{{ contrato.planoContratado }}</td>
+                <td>{{ contrato.dataVencimento | date:'shortDate' }}</td>
+                <td>{{ contrato.status }}</td>
+                <td>
+                  <button class="btn btn-sm btn-info" (click)="selecionarParaNotificar(contrato)">Notificar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #semPlanos>
+          <p class="text-muted text-center m-0">Nenhum plano próximo do vencimento.</p>
+        </ng-template>
+        <div *ngIf="contratoParaNotificar" class="mt-4">
+          <h6>Notificar cliente sobre vencimento</h6>
+          <div class="input-group mb-2">
+            <input type="email" class="form-control" placeholder="E-mail do cliente" [(ngModel)]="emailNotificacao" [disabled]="notificando">
+            <button class="btn btn-success" (click)="enviarNotificacao()" [disabled]="notificando || !emailNotificacao">Enviar</button>
+          </div>
+          <textarea class="form-control mb-2" placeholder="Corpo do e-mail" rows="4" [(ngModel)]="emailCorpo" [disabled]="notificando"></textarea>
+          <div *ngIf="mensagemNotificacao" class="alert" [ngClass]="{'alert-success': mensagemNotificacao.includes('sucesso'), 'alert-danger': mensagemNotificacao.includes('Erro')}">
+            {{ mensagemNotificacao }}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModalVencendo()">Fechar</button>
+      </div>
+    </div>
+  </div>
 </div> 

@@ -36,6 +36,12 @@ export class ContratoFormComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.contrato) {
       this.model = { ...this.contrato };
+      if (this.model.dataInicio) {
+        this.model.dataInicio = this.model.dataInicio.substring(0, 10);
+      }
+      if (this.model.dataVencimento) {
+        this.model.dataVencimento = this.model.dataVencimento.substring(0, 10);
+      }
     } else {
       this.model = this.novoContrato();
     }
@@ -56,13 +62,18 @@ export class ContratoFormComponent implements OnChanges {
 
   onSubmit(): void {
     this.carregando = true;
+    const payload = {
+      ...this.model,
+      dataInicio: this.model.dataInicio ? this.model.dataInicio.substring(0, 10) : '',
+      dataVencimento: this.model.dataVencimento ? this.model.dataVencimento.substring(0, 10) : '',
+    };
     let salvar$;
     if (this.model.id) {
-      salvar$ = this.contratoService.atualizarContrato(this.model).pipe(
+      salvar$ = this.contratoService.atualizarContrato(payload).pipe(
         map(() => this.model)
       );
     } else {
-      salvar$ = this.contratoService.criarContrato(this.model);
+      salvar$ = this.contratoService.criarContrato(payload);
     }
     (salvar$ as Observable<Contrato>).subscribe({
       next: (result: Contrato) => {

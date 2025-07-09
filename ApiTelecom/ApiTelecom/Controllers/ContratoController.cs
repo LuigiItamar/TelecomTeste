@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
+using System.Linq;
+using System.Net.Mail;
+using System.Net;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -83,5 +87,55 @@ public class ContratoController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet("vencendo")]
+    public async Task<ActionResult<IEnumerable<Contrato>>> GetContratosVencendo()
+    {
+        var hoje = DateTime.Today;
+        var limite = hoje.AddDays(5);
+        var contratos = await _context.Contratos
+            .Include(c => c.Operadora)
+            .Where(c => c.DataVencimento >= hoje && c.DataVencimento <= limite)
+            .ToListAsync();
+        return Ok(contratos);
+    }
+
+    public class NotificacaoVencimentoDto
+    {
+        public int ContratoId { get; set; }
+        public string Email { get; set; }
+        public string Corpo { get; set; }
+    }
+
+    [HttpPost("notificar-vencimento")]
+    public async Task<IActionResult> NotificarVencimento([FromBody] NotificacaoVencimentoDto dto)
+    {
+        var contrato = await _context.Contratos.Include(c => c.Operadora).FirstOrDefaultAsync(c => c.Id == dto.ContratoId);
+        if (contrato == null)
+            return NotFound();
+        try
+        {
+            var assunto = $"Seu contrato está próximo do vencimento";
+            var corpo = string.IsNullOrWhiteSpace(dto.Corpo)
+                ? $"Olá,\n\nSeu contrato com a filial '{contrato.NomeFilial}', operadora '{contrato.Operadora?.Nome}', plano '{contrato.PlanoContratado}' vence em {contrato.DataVencimento:dd/MM/yyyy}.\n\nEntre em contato para renovar!"
+                : dto.Corpo;
+            // Envio real via Gmail SMTP
+            // ATENÇÃO: Para funcionar, ative 2FA na sua conta Google e gere uma senha de app em https://myaccount.google.com/apppasswords
+            var smtpUser = "SEU_EMAIL@gmail.com"; // <-- Altere aqui
+            var smtpPass = "SENHA_DE_APP_AQUI";   // <-- Altere aqui
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587))
+            {
+                smtp.Credentials = new NetworkCredential(smtpUser, smtpPass);
+                smtp.EnableSsl = true;
+                var mail = new MailMessage(smtpUser, dto.Email, assunto, corpo);
+                await smtp.SendMailAsync(mail);
+            }
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Erro ao enviar e-mail: {ex.Message}");
+        }
     }
 }

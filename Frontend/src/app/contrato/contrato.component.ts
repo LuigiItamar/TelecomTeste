@@ -5,11 +5,13 @@ import { Contrato } from '../services/contrato';
 import { ContratoFormComponent } from './contrato-form.component';
 import { Operadora } from '../services/operadora';
 import { OperadoraService } from '../services/operadora.service';
+import { ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-contrato',
   standalone: true,
-  imports: [CommonModule, ContratoFormComponent],
+  imports: [CommonModule, ContratoFormComponent, FormsModule],
   templateUrl: './contrato.html',
 })
 export class ContratoComponent implements OnInit {
@@ -19,6 +21,13 @@ export class ContratoComponent implements OnInit {
   erro = '';
   mostrarFormulario = false;
   contratoSelecionado: Contrato | null = null;
+  contratosVencendo: Contrato[] = [];
+  mostrarModalVencendo = false;
+  contratoParaNotificar: Contrato | null = null;
+  emailNotificacao = '';
+  emailCorpo = '';
+  notificando = false;
+  mensagemNotificacao = '';
 
   constructor(
     private contratoService: ContratoService,
@@ -69,6 +78,49 @@ export class ContratoComponent implements OnInit {
     if (refresh) {
       this.carregarContratos();
     }
+  }
+
+  abrirModalVencendo(): void {
+    this.contratoService.getContratosVencendo().subscribe({
+      next: (cts) => {
+        this.contratosVencendo = cts;
+        this.mostrarModalVencendo = true;
+      },
+      error: () => {
+        this.contratosVencendo = [];
+        this.mostrarModalVencendo = true;
+      }
+    });
+  }
+
+  fecharModalVencendo(): void {
+    this.mostrarModalVencendo = false;
+    this.contratoParaNotificar = null;
+    this.emailNotificacao = '';
+    this.emailCorpo = '';
+    this.mensagemNotificacao = '';
+  }
+
+  selecionarParaNotificar(contrato: Contrato): void {
+    this.contratoParaNotificar = contrato;
+    this.emailNotificacao = '';
+    this.emailCorpo = '';
+    this.mensagemNotificacao = '';
+  }
+
+  enviarNotificacao(): void {
+    if (!this.contratoParaNotificar || !this.emailNotificacao || !this.emailCorpo) return;
+    this.notificando = true;
+    this.contratoService.notificarVencimento(this.contratoParaNotificar.id, this.emailNotificacao, this.emailCorpo).subscribe({
+      next: () => {
+        this.mensagemNotificacao = 'Notificação enviada com sucesso!';
+        this.notificando = false;
+      },
+      error: () => {
+        this.mensagemNotificacao = 'Erro ao enviar notificação.';
+        this.notificando = false;
+      }
+    });
   }
 
   getOperadoraNome(id: number): string {
