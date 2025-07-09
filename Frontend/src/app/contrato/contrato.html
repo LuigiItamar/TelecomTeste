@@ -1,0 +1,45 @@
+<div *ngIf="carregando">Carregando...</div>
+<div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+<button class="btn btn-primary mb-3" (click)="abrirFormularioNovo()">
+  Novo Contrato
+</button>
+
+<table class="table table-striped" *ngIf="contratos.length > 0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Filial</th>
+      <th>Operadora</th>
+      <th>Plano</th>
+      <th>Início</th>
+      <th>Vencimento</th>
+      <th>Valor Mensal</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let c of contratos">
+      <td>{{ c.id }}</td>
+      <td>{{ c.nomeFilial }}</td>
+      <td>{{ getOperadoraNome(c.operadoraId) }}</td>
+      <td>{{ c.planoContratado }}</td>
+      <td>{{ c.dataInicio | date:'shortDate' }}</td>
+      <td>{{ c.dataVencimento | date:'shortDate' }}</td>
+      <td>{{ c.valorMensal | currency:'BRL' }}</td>
+      <td>{{ c.status }}</td>
+      <td>
+        <button class="btn btn-sm btn-warning me-2" (click)="abrirFormularioEditar(c)">Editar</button>
+        <button class="btn btn-sm btn-danger" (click)="excluirContrato(c.id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="mostrarFormulario">
+  <app-contrato-form
+    [contrato]="contratoSelecionado"
+    (fechar)="fecharFormulario($event)"
+  ></app-contrato-form>
+</div> 

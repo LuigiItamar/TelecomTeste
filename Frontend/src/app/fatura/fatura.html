@@ -1,0 +1,46 @@
+<div *ngIf="carregando">Carregando...</div>
+<div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+<div class="mb-3">
+  <strong>Total de gastos do mês:</strong>
+  <span>{{ totalMes | currency:'BRL' }}</span>
+</div>
+
+<button class="btn btn-primary mb-3" (click)="abrirFormularioNovo()">
+  Nova Fatura
+</button>
+
+<table class="table table-striped" *ngIf="faturas.length > 0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Contrato</th>
+      <th>Emissão</th>
+      <th>Vencimento</th>
+      <th>Valor Cobrado</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let f of faturas">
+      <td>{{ f.id }}</td>
+      <td>{{ getContratoNome(f.contratoId) }}</td>
+      <td>{{ f.dataEmissao | date:'shortDate' }}</td>
+      <td>{{ f.dataVencimento | date:'shortDate' }}</td>
+      <td>{{ f.valorCobrado | currency:'BRL' }}</td>
+      <td>{{ f.status }}</td>
+      <td>
+        <button class="btn btn-sm btn-warning me-2" (click)="abrirFormularioEditar(f)">Editar</button>
+        <button class="btn btn-sm btn-danger" (click)="excluirFatura(f.id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="mostrarFormulario">
+  <app-fatura-form
+    [fatura]="faturaSelecionada"
+    (fechar)="fecharFormulario($event)"
+  ></app-fatura-form>
+</div> 

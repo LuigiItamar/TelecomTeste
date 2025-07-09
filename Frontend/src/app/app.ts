@@ -14,9 +14,14 @@ import { RouterOutlet, RouterLink } from '@angular/router';
             <a routerLink="/operadora" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: 500;">Operadora</a>
           </li>
           <li style="margin-bottom: 1rem;">
+            <a routerLink="/contrato" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: 500;">Contratos</a>
+          </li>
+          <li style="margin-bottom: 1rem;">
+            <a routerLink="/fatura" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: 500;">Faturas</a>
+          </li>
+          <li style="margin-bottom: 1rem;">
             <a routerLink="/dashboard" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: 500;">Dashboard</a>
           </li>
-          <!-- Adicione mais itens de navegação aqui -->
         </ul>
       </nav>
       <main style="flex: 1; padding: 2rem; overflow-y: auto;">

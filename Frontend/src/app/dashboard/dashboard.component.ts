@@ -20,6 +20,8 @@ import { BaseChartDirective } from 'ng2-charts';
 
 import { FaturaService } from '../services/fatura.service';
 import { Fatura } from '../services/fatura';
+import { ContratoService } from '../services/contrato.service';
+import { Contrato } from '../services/contrato';
 
 Chart.register(
   ArcElement,
@@ -40,6 +42,7 @@ Chart.register(
 })
 export class DashboardComponent implements OnInit {
   faturas: Fatura[] = [];
+  contratos: Contrato[] = [];
 
   totalFaturas = 0;
   totalValor = 0;
@@ -87,7 +90,7 @@ export class DashboardComponent implements OnInit {
   modalTitulo = '';
   faturasFiltradas: Fatura[] = [];
 
-  constructor(private faturaService: FaturaService) {}
+  constructor(private faturaService: FaturaService, private contratoService: ContratoService) {}
 
   ngOnInit(): void {
     this.faturaService.getFaturas().subscribe((faturas) => {
@@ -103,6 +106,7 @@ export class DashboardComponent implements OnInit {
       this.montarPizza(faturas);
       this.montarBarra(faturas);
     });
+    this.contratoService.getContratos().subscribe(contratos => this.contratos = contratos);
   }
 
   montarPizza(faturas: Fatura[]) {
@@ -165,5 +169,10 @@ export class DashboardComponent implements OnInit {
   formatarPorcentagem(value: number): string {
     const total = this.pieChartData.reduce((a, b) => a + b, 0);
     return total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+  }
+
+  getFilialNome(contratoId: number): string {
+    const contrato = this.contratos.find(c => c.id === contratoId);
+    return contrato ? contrato.nomeFilial : '';
   }
 }
