@@ -47,7 +47,7 @@ export class OperadoraFormComponent implements OnChanges {
     let salvar$;
     if (this.model.id) {
       salvar$ = this.operadoraService.atualizarOperadora(this.model).pipe(
-        // Como atualizarOperadora retorna void, map para o model atual
+        
         map(() => this.model)
       );
     } else {
