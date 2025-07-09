@@ -60,6 +60,17 @@ public class FaturaController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteFatura(int id)
+    {
+        var fatura = await _context.Faturas.FindAsync(id);
+        if (fatura == null)
+            return NotFound();
+        _context.Faturas.Remove(fatura);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
     [HttpGet("total/{anoMes}")]
     public async Task<ActionResult<decimal>> GetTotalMensal(string anoMes)
     {
